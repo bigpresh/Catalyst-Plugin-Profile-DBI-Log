@@ -185,6 +185,8 @@ my $html = <<HTML;
 
 <h1>DBI log for request $method $path at $datetime</h1>
 
+<p>$stats->{method} $stats->{path_query}</p>
+
 <p>Total time querying DB: $stats->{total_query_time}s</p>
 
 
@@ -192,15 +194,30 @@ my $html = <<HTML;
 <tr>
 <th>Query</th>
 <th>Took</th>
+<th>Stack</th>
 </tr>
 HTML
 
     for my $json_line ($profile_path->lines) {
         my $data = JSON::from_json($json_line);
+
+        # Find first useful line of the stack (knowing about DBIx internals
+        # isn't that helpful) 
+        # TODO: add a click to view the full stack trace feature.
+        my $first_frame = (
+            grep {
+                $_->{file} !~ m{(DBIx/Class|Try/Tiny|Context/Preserve)}
+            } @{ $data->{stack} }
+        )[-1];
+
+        my $stack_summarised = sprintf "%s @ %s L%d",
+            @$first_frame{qw(sub file line)};
+
         $html .= <<ROW;
 <tr>
 <td><pre class="query">$data->{query}</pre></td>
 <td>$data->{time_taken}</td>
+<td>$stack_summarised</td>
 </tr>
 ROW
     }
@@ -222,8 +239,39 @@ END
 
 }
 
+sub generate_stack_trace_html {
+    my $stack_data = shift;
 
- 
+    my $html .= <<STACKTRACETABLESTART;
+
+<h2>Stack trace</h2>
+
+<table>
+<tr>
+<th>File</th>
+<th>Line</th>
+<th>Sub</th>
+</tr>
+
+STACKTRACETABLESTART
+
+    for my $frame (@{ $stack_data }) {
+        $html .= <<STACKROW;
+<tr>
+<td>$frame->{file}</td>
+<td>$frame->{line}</td>
+<td><tt>$frame->{sub}</tt></td>
+</tr>
+STACKROW
+    }
+
+    $html .= "</table>";
+
+    return $html;
+
+}
+
+
 1;
  
  

@@ -19,20 +19,6 @@ BEGIN { extends 'Catalyst::Controller' }
 # able to override in app config
 my $dbilog_output_dir = 'dbilog_output';
 
-=for fuck's sake
-
-sub auto : Private {
-    my ($self, $c) = @_;
-    $c->log->debug("auto action called");
-}
-
-=cut
-
-sub globalregex :Regexp(.+) {
-    my ($self, $c) = @_;
-    $c->log->debug("globalregex fired");
-    return 1;
-}
 
 sub index : Local {
     my ($self, $c) = @_;

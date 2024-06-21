@@ -8,6 +8,7 @@ use Path::Tiny qw(path);
 use namespace::autoclean;
 
 use File::stat;
+use HTML::Entities;
  
 BEGIN { extends 'Catalyst::Controller' }
  
@@ -58,7 +59,9 @@ table td {
 <th>Path</th>
 <th>Total query time</th>
 <th>Longest query</th>
+<th>Query count</th>
 <th>Datetime</th>
+<th>IP</th>
 <th>View</th>
 </tr>
 HTML
@@ -66,6 +69,7 @@ HTML
     opendir my $outdir, $dbilog_output_dir
         or die "Failed to opendir $dbilog_output_dir - $!";
     my @files = grep { $_ !~ /^(\.|html)/ } readdir $outdir;
+    file:
     for my $file (
         grep { 
             -s path($dbilog_output_dir, $_) 
@@ -79,13 +83,22 @@ HTML
         $title =~ s{_s_}{/}g;
         my ($method, $path ,$timestamp, $uuid) = split '_', $title, 4;
         my $stats = get_stats(path($dbilog_output_dir, $file));
+
+        # We delete logs for requests that didn't have any queries at the
+        # end of the request, but seemingly that doesn't /always/ happen
+        # - so bail now if we don't have any queries to report.
+        next file unless $stats->{query_count};
+
         my $datetime = scalar localtime( (stat path($dbilog_output_dir, $file))->ctime);
+        my $path = format_path($stats->{path_query});
 
         $html .= <<ROW;
-<tr><td>$method</td><td>$path</td>
+<tr><td>$stats->{method}</td><td>$path</td>
 <td>$stats->{total_query_time}s</td>
 <td>$stats->{slowest_query}s</td>
+<td>$stats->{query_count}</td>
 <td>$datetime</td>
+<td>$stats->{ip}</td>
 <td><a href="/dbi/log/show/$file">View</a></td>
 </tr>
 ROW
@@ -101,13 +114,43 @@ ROW
 }
 
 
+# Turn URL path into HTML to display the path part before the query more
+# prominently, and potentially truncate long query strings. 
+sub format_path {
+    my $in = shift;
+    my ($path, $query) = split /\?/, $in, 2;
+    my $out = qq{<span class="path" style="font-weight:bold">$path</span>};
+    if ($query) {
+        # check if too long
+        my $reveal_js;
+        my $display_query = $query;
+        if (length $query > 100) {
+            $display_query = substr($query, 0, 100) . "...";
+            # FIXME probably need to be careful here in case the query contains
+            # quotes.  Just encode entities first?
+            $reveal_js = qq{onclick="this.textContent = '$query'" title="Click to display all"};
+        }
+        $display_query = HTML::Entities::encode_entities($display_query);
+        
+        $out .= qq{?<span class="querystring" $reveal_js>$display_query</span>};
+    }
+    return $out;
+
+}
+
+
 sub get_stats {
     my $file = shift;
     my @json_lines = path($file)->lines;
 
     my %stats;
     # The file is line-delimited JSON, where each line is a separate
-    # JSON object, so we need to read each line as JSON separately
+    # JSON object, so we need to read each line as JSON separately.
+    # The first line is our metadata describing the HTTP request which was
+    # being processed.
+    my $metadata_json = shift @json_lines;
+    %stats = %{ JSON::from_json($metadata_json) };
+
     for my $line (@json_lines) {
         my $line_data = JSON::from_json($line);
         $stats{query_count}++;

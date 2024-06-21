@@ -1,8 +1,6 @@
 # ABSTRACT: Capture queries executed during a Catalyst route with DBI::Log
 package Catalyst::Plugin::Profile::DBI::Log;
-BEGIN {
-  $Catalyst::Plugin::Profile::DBI::Log::VERSION = '0.01';
-}
+our $VERSION = '0.01';
 use Moose::Role;
 use namespace::autoclean;
  
@@ -62,7 +60,20 @@ after 'prepare_body' => sub {
     $path = Path::Tiny::path($dbilog_output_dir, $path);
     open my $dbilog_fh, ">", $path
         or $c->log->debug("Can't open $path to write - $!");
-    $DBI::Log::opts{fh} = $dbilog_fh;
+
+    # Write our metadata to the log first
+    print {$dbilog_fh} JSON::to_json(
+        {
+            logged_by  => __PACKAGE__ . "/$VERSION",
+            method     => $c->request->method,
+            path       => $c->request->path,
+            path_query => $c->request->uri->path_query,
+            ip         => $c->request->address,
+            user_agent => $c->request->user_agent,
+        }
+    ) . "\n";
+    $DBI::Log::opts{fh}   = $dbilog_fh;
+    $DBI::Log::opts{file} = $path;
 };
 
 
@@ -77,6 +88,16 @@ after 'finalize_body' => sub {
     # file - if it's zero-sized, there's no point it existing and we could
     # nuke it?
     $DBI::Log::opts{fh}->flush();
+
+    # Want to know how many queries were logged; if there were none, then
+    # there's no point keeping the log, so we should delete it.
+    seek $DBI::Log::opts{fh}, 0, 0;
+    my $metadata_json = <$DBI::Log::opts{fh}>;
+    my $first_query = <$DBI::Log::opts{fh}>;
+    if (!$first_query) {
+        $c->log->debug("No queries logged, delete file");
+        unlink $DBI::Log::opts{file};
+    }
 
 };
 

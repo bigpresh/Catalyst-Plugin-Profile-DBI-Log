@@ -164,6 +164,12 @@ sub show :Local Args(1) {
 
     my $stats = get_stats($profile_path);
 
+    # It makes sense for GET request URLs to be clickable - not so much for
+    # PUT/POST, so work it out:
+    my $path_maybe_link = $stats->{method} eq 'GET'
+        ? qq{<a href="$stats->{path_query}">$stats->{path_query}</a>}
+        : $stats->{path_query};
+
 my $html = <<HTML;
 
 <script type="text/javascript" src="https://unpkg.com/sql-formatter\@latest/dist/sql-formatter.min.js"></script>
@@ -171,7 +177,7 @@ my $html = <<HTML;
 
 <h1>DBI log for request $method $path at $datetime</h1>
 
-<p>$stats->{method} $stats->{path_query}</p>
+<p>$stats->{method} $path_maybe_link</p>
 
 <p>Total time querying DB: $stats->{total_query_time}s</p>
 

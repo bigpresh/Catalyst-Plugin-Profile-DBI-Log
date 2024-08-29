@@ -102,3 +102,75 @@ after 'finalize_body' => sub {
 
 
 1;
+
+=head1 NAME
+
+Catalyst::Plugin::Profile::DBI::Log - per-request DB query logging & profiling
+
+=head1 SYNOPSIS
+
+Load the plugin like any other Catalyst plugin e.g.
+
+  use Catalyst qw(Profile::DBI::Log);
+
+hit your app with some requests, then point your browser at C</dbi/log/index> 
+and you'll see a list of HTTP requests handled, along with info on how many 
+queries they ran and how long they spent waiting for the DB, with a clickable
+link to view the actual queries and stack trace of where they came from.
+
+=head1 DESCRIPTION
+
+I needed a way to quickly and easily see, for each API route invocation (HTTP
+request) my app handled,
+
+=over
+
+=item How many DB queries were performed
+
+=item How long we spent waiting for DB queries
+
+=item What the actual queries executed were and how long each took
+
+=item Where in our codebase those queries were performed
+
+=back
+
+This plugin is designed to simplify just that.
+
+When loaded, it arranges for L<DBI::Log> to log all queries to log files,
+while adding some metadata of our own to identify the HTTP request being
+processed.  It adds a route handler to provide routes to list requests
+profiled along with summary info (how many queries, how long spent waiting on
+queries etc), and clickable links to view all the queries performed, and to
+view a stack trace of where the query was performed from (to see easily what
+part of your codebase triggered it).
+
+
+=head1 SEE ALSO
+
+There are a couple of prior art examples which capture stats from DBIC
+using L<DBIx::Class::Storage::Statistics> such as L<Catalyst::Plugin::DBIC::Profiler>
+but parts of one of our apps, for hairy legacy reasons also go direct to the
+DB with DBI, so we needed to catch those too - and wanted a useful way to
+see the list of profiled requests right in the browser.
+
+
+=head1 SECURITY
+
+This is a development tool.  It captures, records and serves up raw SQL queries
+which may well contain sensitive information - e.g. parameters used to search
+the DB, etc.  I would not recommend loading it on a production site or exposing
+an app with it loaded to the Internet.
+
+=head1 AUTHOR
+
+David Precious (BIGPRESH) C<< <davidp@preshweb.co.uk> >>
+
+=head1 COPYRIGHT AND LICENCE
+
+Copyright (C) 2024 by David Precious
+
+This library is free software; you can redistribute it and/or modify it 
+under the same terms as Perl itself.
+
+=cut

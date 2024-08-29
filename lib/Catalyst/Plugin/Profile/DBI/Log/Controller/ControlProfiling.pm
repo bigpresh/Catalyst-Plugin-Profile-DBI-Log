@@ -257,6 +257,31 @@ STACKROW
 
 
 1;
- 
- 
+
+=head1 NAME
+
+Catalyst::Plugin::Profile::DBI::Log::Controller::ControlProfiling
+
+=head1 DESCRIPTION
+
+Provides the route handlers to list profiled HTTP requests, and
+inspect the DB queries they executed.
+
+See the base L<Catalyst::Plugin::Profile::DBI::Log> documentation for
+more details.
+
+=head1 AUTHOR
+
+David Precious (BIGPRESH) C<< <davidp@preshweb.co.uk> >>
+
+=head1 COPYRIGHT AND LICENCE
+
+Copyright (C) 2024 by David Precious
+
+This library is free software; you can redistribute it and/or modify it 
+under the same terms as Perl itself.
+
+=cut
+
+
 __END__

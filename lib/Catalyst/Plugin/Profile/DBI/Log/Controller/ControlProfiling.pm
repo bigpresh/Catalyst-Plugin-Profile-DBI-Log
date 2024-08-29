@@ -1,8 +1,8 @@
 # ABSTRACT: Control profiling within your application
 package Catalyst::Plugin::Profile::DBI::Log::Controller::ControlProfiling;
-BEGIN {
-  $Catalyst::Plugin::Profile::DBI::Log::Controller::ControlProfiling::VERSION = '0.02';
-}
+
+# VERSION (maintained by DZP::OurPkgVersion)
+#
 use Moose;
 use Path::Tiny qw(path);
 use namespace::autoclean;

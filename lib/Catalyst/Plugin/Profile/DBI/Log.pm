@@ -1,6 +1,8 @@
-# ABSTRACT: Capture queries executed during a Catalyst route with DBI::Log
 package Catalyst::Plugin::Profile::DBI::Log;
-our $VERSION = '0.01';
+# ABSTRACT: Capture queries executed during a Catalyst route with DBI::Log
+
+# VERSION (maintained by DZP::OurPkgVersion)
+
 use Moose::Role;
 use namespace::autoclean;
  

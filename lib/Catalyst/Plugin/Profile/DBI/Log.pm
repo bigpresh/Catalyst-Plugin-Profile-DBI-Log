@@ -9,6 +9,7 @@ use Data::UUID;
 use DateTime;
 use DDP;
 use Path::Tiny;
+use Time::HiRes;
 
 # Load DBI::Log, but point it at /dev/null to start with; we'll give it a
 # new filehandle at the beginning of each request.
@@ -70,6 +71,7 @@ after 'prepare_body' => sub {
             path_query => $c->request->uri->path_query,
             ip         => $c->request->address,
             user_agent => $c->request->user_agent,
+            start_timestamp => Time::HiRes::time(),
         }
     ) . "\n";
     $DBI::Log::opts{fh}   = $dbilog_fh;
@@ -81,12 +83,7 @@ after 'prepare_body' => sub {
 after 'finalize_body' => sub {
     my $c = shift;
     $c->log->debug("finalize_body fired, stop profiling");
-    # Do we need to do anything here?  The filehandle we're using will get
-    # reset on next request, is there much point in us doing anything
-    # specific here, besides maybe just making sure it's been flushed?
-    # FIXME: what about seeing if we actually logged any queries to the
-    # file - if it's zero-sized, there's no point it existing and we could
-    # nuke it?
+    # Make sure the file has been flushed before we do anything
     $DBI::Log::opts{fh}->flush();
 
     # Want to know how many queries were logged; if there were none, then

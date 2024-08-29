@@ -12,7 +12,6 @@ use HTML::Entities;
  
 BEGIN { extends 'Catalyst::Controller' }
  
-#use Devel::DBI::Log;
 
 # FIXME: how am I going to share this from the Catalyst::Plugin plugin code
 # to this controller code nicely?  Need both to get default values and be
@@ -67,7 +66,6 @@ HTML
     ) {
         my $title = $file;
         $title =~ s{_s_}{/}g;
-        my ($method, $path ,$timestamp, $uuid) = split '_', $title, 4;
         my $stats = get_stats(path($dbilog_output_dir, $file));
 
         # We delete logs for requests that didn't have any queries at the
@@ -92,11 +90,8 @@ ROW
 
     $html .= "</table>";
 
-    # FIXME - in our app, the default view tries to render a template
-    # named after the URL path.  How do we stop that?
     $c->response->body($html);
     $c->response->status(200);
-    #$c->detach;
 }
 
 
@@ -148,9 +143,6 @@ sub get_stats {
     
 }
 
-#sub show : Local {
-#    my ($self, $c) = @_;
-#sub show :Local :Regex('show/(.+)') {
 sub show :Local Args(1) {
     my ($self, $c, $profile) = @_;
 

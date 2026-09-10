@@ -186,8 +186,8 @@ sub show :Local Args(1) {
 
 my $html = <<HTML;
 
-<script type="text/javascript" src="https://unpkg.com/sql-formatter\@latest/dist/sql-formatter.min.js"></script>
-<script type="text/javascript" src="https://unpkg.com/jquery"></script>
+<script type="text/javascript" src="https://unpkg.com/sql-formatter\@2.6.3/dist/sql-formatter.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/jquery\@3.7.1/dist/jquery.min.js"></script>
 
 <h1>DBI log for request @{[ HTML::Entities::encode_entities($method) ]} @{[ HTML::Entities::encode_entities($path) ]} at @{[ HTML::Entities::encode_entities($datetime) ]}</h1>
 

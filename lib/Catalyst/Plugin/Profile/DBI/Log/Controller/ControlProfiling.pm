@@ -264,9 +264,9 @@ STACKTRACETABLESTART
     for my $frame (@{ $stack_data }) {
         $html .= <<STACKROW;
 <tr>
-<td>$frame->{file}</td>
-<td>$frame->{line}</td>
-<td><tt>$frame->{sub}</tt></td>
+<td>@{[ HTML::Entities::encode_entities($frame->{file}) ]}</td>
+<td>@{[ HTML::Entities::encode_entities($frame->{line}) ]}</td>
+<td><tt>@{[ HTML::Entities::encode_entities($frame->{sub}) ]}</tt></td>
 </tr>
 STACKROW
     }

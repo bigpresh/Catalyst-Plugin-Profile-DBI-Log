@@ -87,13 +87,13 @@ HTML
         my $path = format_path($stats->{path_query});
 
         $html .= <<ROW;
-<tr><td>$stats->{method}</td><td>$path</td>
-<td>$stats->{total_query_time}s</td>
-<td>$stats->{slowest_query}s</td>
-<td>$stats->{query_count}</td>
-<td>$datetime</td>
-<td>$stats->{ip}</td>
-<td><a href="/dbi/log/show/$file">View</a></td>
+<tr><td>@{[ HTML::Entities::encode_entities($stats->{method}) ]}</td><td>$path</td>
+<td>@{[ HTML::Entities::encode_entities($stats->{total_query_time}) ]}s</td>
+<td>@{[ HTML::Entities::encode_entities($stats->{slowest_query}) ]}s</td>
+<td>@{[ HTML::Entities::encode_entities($stats->{query_count}) ]}</td>
+<td>@{[ HTML::Entities::encode_entities($datetime) ]}</td>
+<td>@{[ HTML::Entities::encode_entities($stats->{ip}) ]}</td>
+<td><a href="/dbi/log/show/@{[ HTML::Entities::encode_entities($file) ]}">View</a></td>
 </tr>
 ROW
     }

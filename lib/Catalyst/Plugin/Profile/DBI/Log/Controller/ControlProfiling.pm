@@ -117,9 +117,12 @@ sub format_path {
         my $display_query = $query;
         if (length $query > 100) {
             $display_query = substr($query, 0, 100) . "...";
-            # FIXME probably need to be careful here in case the query contains
-            # quotes.  Just encode entities first?
-            $reveal_js = qq{onclick="this.textContent = '$query'" title="Click to display all"};
+            my $js_safe = $query;
+            $js_safe =~ s{\\}{\\\\}g;
+            $js_safe =~ s{"}{&quot;}g;
+            $js_safe =~ s{\n}{\\n}g;
+            $js_safe =~ s{\r}{\\r}g;
+            $reveal_js = qq{onclick="this.textContent = \\"$js_safe\\"" title="Click to display all"};
         }
         $display_query = HTML::Entities::encode_entities($display_query);
         

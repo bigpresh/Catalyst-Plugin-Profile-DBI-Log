@@ -179,20 +179,21 @@ sub show :Local Args(1) {
 
     # It makes sense for GET request URLs to be clickable - not so much for
     # PUT/POST, so work it out:
+    my $encoded_path_query = HTML::Entities::encode_entities($stats->{path_query});
     my $path_maybe_link = $stats->{method} eq 'GET'
-        ? qq{<a href="$stats->{path_query}">$stats->{path_query}</a>}
-        : $stats->{path_query};
+        ? qq{<a href="$encoded_path_query">$encoded_path_query</a>}
+        : $encoded_path_query;
 
 my $html = <<HTML;
 
 <script type="text/javascript" src="https://unpkg.com/sql-formatter\@latest/dist/sql-formatter.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/jquery"></script>
 
-<h1>DBI log for request $method $path at $datetime</h1>
+<h1>DBI log for request @{[ HTML::Entities::encode_entities($method) ]} @{[ HTML::Entities::encode_entities($path) ]} at @{[ HTML::Entities::encode_entities($datetime) ]}</h1>
 
-<p>$stats->{method} $path_maybe_link</p>
+<p>@{[ HTML::Entities::encode_entities($stats->{method}) ]} $path_maybe_link</p>
 
-<p>Total time querying DB: $stats->{total_query_time}s</p>
+<p>Total time querying DB: @{[ HTML::Entities::encode_entities($stats->{total_query_time}) ]}s</p>
 
 
 <table border="1">
@@ -220,9 +221,9 @@ HTML
 
         $html .= <<ROW;
 <tr>
-<td><pre class="query">$data->{query}</pre></td>
-<td>$data->{time_taken}</td>
-<td>$stack_summarised</td>
+<td><pre class="query">@{[ HTML::Entities::encode_entities($data->{query}) ]}</pre></td>
+<td>@{[ HTML::Entities::encode_entities($data->{time_taken}) ]}</td>
+<td>@{[ HTML::Entities::encode_entities($stack_summarised) ]}</td>
 </tr>
 ROW
     }

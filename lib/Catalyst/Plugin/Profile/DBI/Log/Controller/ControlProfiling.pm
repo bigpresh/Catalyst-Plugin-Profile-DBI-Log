@@ -58,7 +58,11 @@ table td {
 HTML
 
     opendir my $outdir, $dbilog_output_dir
-        or die "Failed to opendir $dbilog_output_dir - $!";
+        or do {
+            $c->response->status(500);
+            $c->response->body("Failed to open $dbilog_output_dir: $!");
+            return;
+        };
     my @files = grep { $_ !~ /^(\.|html)/ } readdir $outdir;
     file:
     for my $file (

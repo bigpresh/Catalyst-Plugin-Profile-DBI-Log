@@ -9,7 +9,6 @@ use namespace::autoclean;
 use CatalystX::InjectComponent;
 use Data::UUID;
 use DateTime;
-use DDP;
 use JSON;
 use Path::Tiny;
 use Time::HiRes;

@@ -1,0 +1,10 @@
+# Dist::Zilla build dir and the dists it produces
+/.build/
+/Catalyst-Plugin-Profile-DBI-Log-*/
+/Catalyst-Plugin-Profile-DBI-Log-*.tar.gz
+
+# Generated at build time from the POD
+/README
+
+# Profiling output, if the plugin is exercised from within the checkout
+/dbilog_output/

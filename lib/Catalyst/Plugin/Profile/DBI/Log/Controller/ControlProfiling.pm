@@ -46,7 +46,7 @@ a:hover { text-decoration: underline; }
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    overflow: hidden;
+    overflow-x: auto;
 }
 table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 th {
@@ -78,7 +78,16 @@ tr:hover td { background: #f6f8fa; }
 .method-PATCH  { background: #fff1e5; color: #953800; }
 .method-DELETE { background: #ffebe9; color: #82071e; }
 .query-path { font-weight: 600; }
-.query-string { color: #6e7781; cursor: pointer; }
+.query-string {
+    color: #6e7781;
+    cursor: pointer;
+    display: inline-block;
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+}
 .query-string:hover { color: #0066cc; }
 .stat { font-variant-numeric: tabular-nums; }
 .view-btn {
@@ -93,9 +102,16 @@ tr:hover td { background: #f6f8fa; }
 .view-btn:hover { background: #0052a3; text-decoration: none; }
 .summary-cards {
     display: flex;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.75rem;
     margin-bottom: 1.5rem;
 }
+.summary-row {
+    display: flex;
+    gap: 0.75rem;
+}
+.summary-row > .card:first-child { flex: 3; }
+.summary-row > .card:last-child { flex: 1; }
 .card {
     background: #fff;
     border-radius: 8px;
@@ -229,6 +245,7 @@ sub format_path {
     my $out = qq{<span class="query-path">$path</span>};
     if ($query) {
         my $reveal_js;
+        my $title_attr = qq{title="@{[ HTML::Entities::encode_entities($query) ]}"};
         my $display_query = $query;
         if (length $query > 100) {
             $display_query = substr($query, 0, 100) . "...";
@@ -237,11 +254,11 @@ sub format_path {
             $js_safe =~ s{"}{&quot;}g;
             $js_safe =~ s{\n}{\\n}g;
             $js_safe =~ s{\r}{\\r}g;
-            $reveal_js = qq{onclick="this.textContent = \\"$js_safe\\"" title="Click to display all"};
+            $reveal_js = qq{onclick="this.textContent = \\"$js_safe\\"" };
         }
         $display_query = HTML::Entities::encode_entities($display_query);
 
-        $out .= qq{?<span class="query-string" $reveal_js>$display_query</span>};
+        $out .= qq{?<span class="query-string" ${reveal_js}${title_attr}>$display_query</span>};
     }
     return $out;
 }
@@ -342,10 +359,17 @@ ROW
 <h1>DBI::Log &mdash; Request Detail</h1>
 
 <div class="summary-cards">
+<div class="summary-row">
 <div class="card">
 <div class="card-label">Request</div>
 <div class="card-value"><span class="method method-$method">$method</span> $path_maybe_link</div>
 </div>
+<div class="card">
+<div class="card-label">Recorded</div>
+<div class="card-value" style="font-size:1rem">@{[ HTML::Entities::encode_entities($datetime) ]}</div>
+</div>
+</div>
+<div class="summary-row">
 <div class="card">
 <div class="card-label">Total DB Time</div>
 <div class="card-value">@{[ HTML::Entities::encode_entities($stats->{total_query_time}) ]}s</div>
@@ -354,9 +378,6 @@ ROW
 <div class="card-label">Queries</div>
 <div class="card-value">$query_count</div>
 </div>
-<div class="card">
-<div class="card-label">Recorded</div>
-<div class="card-value" style="font-size:1rem">@{[ HTML::Entities::encode_entities($datetime) ]}</div>
 </div>
 </div>
 

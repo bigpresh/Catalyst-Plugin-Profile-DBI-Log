@@ -160,6 +160,13 @@ sub show :Local Args(1) {
     my ($self, $c, $profile) = @_;
     my $dbilog_output_dir = $self->_dbilog_output_dir($c);
 
+    # Guard against path traversal attempts
+    if ($profile =~ m{(\.\.|/|\\)}) {
+        $c->response->status(400);
+        $c->response->body("Invalid profile name");
+        return;
+    }
+
     my ($method, $path ,$timestamp, $uuid) = split '_', $profile, 4;
 
     my $profile_path = Path::Tiny::path(

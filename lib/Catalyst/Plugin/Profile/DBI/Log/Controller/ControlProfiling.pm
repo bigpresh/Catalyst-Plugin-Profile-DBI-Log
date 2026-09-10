@@ -14,14 +14,19 @@ use JSON;
 BEGIN { extends 'Catalyst::Controller' }
  
 
-# FIXME: how am I going to share this from the Catalyst::Plugin plugin code
-# to this controller code nicely?  Need both to get default values and be
-# able to override in app config
-my $dbilog_output_dir = 'dbilog_output';
+# Read the configured output dir, falling back to the default.
+# The plugin sets this in setup_finalize; we read it from the app config.
+sub _dbilog_output_dir {
+    my $self = shift;
+    my $c = ref($_[-1]) && $_[-1]->isa('Catalyst::Context') ? pop : undef;
+    my $conf = $c ? $c->config->{'Plugin::Profile::DBI::Log'} : {};
+    return $conf->{dbilog_out_dir} || 'dbilog_output';
+}
 
 
 sub index : Local {
     my ($self, $c) = @_;
+    my $dbilog_output_dir = $self->_dbilog_output_dir($c);
     # ICK ICK ICK, get this in a nice template
     my $html = <<HTML;
 <h1>DBI::Log management</h1>
@@ -146,6 +151,7 @@ sub get_stats {
 
 sub show :Local Args(1) {
     my ($self, $c, $profile) = @_;
+    my $dbilog_output_dir = $self->_dbilog_output_dir($c);
 
     my ($method, $path ,$timestamp, $uuid) = split '_', $profile, 4;
 

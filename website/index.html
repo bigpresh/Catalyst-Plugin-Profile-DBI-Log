@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catalyst::Plugin::Profile::DBI::Log</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="nav">
+<div class="nav-inner">
+<span class="nav-brand">Profile::DBI::Log</span>
+<ul class="nav-links">
+<li><a href="#features">Features</a></li>
+<li><a href="#screenshots">Screenshots</a></li>
+<li><a href="#quickstart">Quick Start</a></li>
+<li><a href="https://github.com/bigpresh/Catalyst-Plugin-Profile-DBI-Log">GitHub</a></li>
+<li><a href="https://metacpan.org/dist/Catalyst-Plugin-Profile-DBI-Log">MetaCPAN</a></li>
+</ul>
+</div>
+</nav>
+
+<header class="hero">
+<h1>Catalyst::Plugin::Profile::DBI::Log</h1>
+<p class="subtitle">
+See exactly what DB queries your Catalyst app executes on each HTTP request
+&nbsp;&mdash;&nbsp; how many, how long they took, and where in your code they came from.
+</p>
+<div class="hero-badges">
+<a class="badge badge-primary" href="https://metacpan.org/dist/Catalyst-Plugin-Profile-DBI-Log">
+  Install from CPAN
+</a>
+<a class="badge" href="https://github.com/bigpresh/Catalyst-Plugin-Profile-DBI-Log">
+  GitHub
+</a>
+<a class="badge" href="https://metacpan.org/dist/Catalyst-Plugin-Profile-DBI-Log">
+  v0.03 &middot; Perl 5
+</a>
+</div>
+</header>
+
+<div class="container">
+
+<!-- Features -->
+<section id="features">
+<h2>What It Does</h2>
+<p>
+When debugging performance issues in a Catalyst application, the first question is
+often <em>"why was this request slow?"</em> &mdash; and the answer is often in
+the database. This plugin gives you a quick, in-browser view of exactly what
+queries each HTTP request triggered, without leaving your development server.
+</p>
+<div class="feature-grid">
+<div class="feature-card">
+<h3>Per-Request Profiling</h3>
+<p>
+Every request gets its own log file capturing all queries executed during that
+request, with timestamps and timing data.
+</p>
+</div>
+<div class="feature-card">
+<h3>SQL Query Details</h3>
+<p>
+View every query executed, formatted and syntax-highlighted for readability,
+along with how long each one took.
+</p>
+</div>
+<div class="feature-card">
+<h3>Stack Traces</h3>
+<p>
+Each query shows where in your codebase it was triggered &mdash; skip past
+framework internals straight to the relevant file and line number.
+</p>
+</div>
+<div class="feature-card">
+<h3>Request Metadata</h3>
+<p>
+Each profile captures the HTTP method, path, IP address, user agent, and a
+timestamp so you can identify requests at a glance.
+</p>
+</div>
+</div>
+</section>
+
+<!-- Screenshots -->
+<section id="screenshots">
+<h2>Screenshots</h2>
+
+<figure class="screenshot">
+<img src="images/request-list.png"
+     alt="Table listing profiled HTTP requests with method, path, query timing, and a View button for each">
+<figcaption>
+<strong>Request list</strong> &mdash; all profiled requests are shown newest-first with
+total DB time, slowest individual query, and number of queries executed.
+The colour-coded method badges make it easy to spot GET vs POST at a glance.
+</figcaption>
+</figure>
+
+<figure class="screenshot">
+<img src="images/request-show.png"
+     alt="Detail view showing six SQL queries executed during a POST /api/v2/orders request, each with timing and stack trace">
+<figcaption>
+<strong>Request detail</strong> &mdash; click View on any request to see every SQL
+query that was executed, how long each one took, and the stack trace showing
+where it was called from in your code.
+</figcaption>
+</figure>
+</section>
+
+<!-- Quick Start -->
+<section id="quickstart">
+<h2>Quick Start</h2>
+<p>Install from CPAN:</p>
+<pre><code>cpanm Catalyst::Plugin::Profile::DBI::Log</code></pre>
+
+<p>Add the plugin to your Catalyst app:</p>
+<pre><code># in lib/MyApp.pm
+use Catalyst qw(
+    -Debug
+    ConfigLoader
+    Static::Simple
+    Profile::DBI::Log
+);</code></pre>
+
+<p>Optionally configure the output directory in your <code>catalyst.conf</code>:</p>
+<pre><code>&lt;Plugin::Profile::DBI::Log&gt;
+    dbilog_out_dir dbilog_output
+&lt;/Plugin::Profile::DBI::Log&gt;</code></pre>
+
+<p>Start your development server, make some requests, then browse to:</p>
+<pre><code>http://localhost:3000/dbi/log/index</code></pre>
+</section>
+
+<!-- How It Works -->
+<section>
+<h2>How It Works</h2>
+<p>
+Under the hood, the plugin hooks into the Catalyst request lifecycle and uses
+<a href="https://metacpan.org/pod/DBI::Log">DBI::Log</a> to capture all
+database queries. At the start of each request, a new log file is created with
+metadata about the HTTP request (method, path, IP, user agent, timestamp). As
+the request is processed, every
+<a href="https://metacpan.org/pod/DBI">DBI</a> query is appended to the log
+with timing data and a stack trace. At the end of the request, the log is
+finalised &mdash; or deleted if no queries were logged.
+</p>
+<p>
+The plugin also injects a
+<a href="https://metacpan.org/pod/Catalyst::Controller">Catalyst::Controller</a>
+(via <a href="https://metacpan.org/pod/CatalystX::InjectComponent">CatalystX::InjectComponent</a>)
+that provides the web UI for browsing profiled requests.
+</p>
+</section>
+
+<!-- Security Note -->
+<section>
+<h2>Security Note</h2>
+<div class="warning">
+<strong>Development tool only.</strong>
+This plugin captures, records, and serves up raw SQL queries &mdash; which may
+contain sensitive data such as user IDs, search parameters, or personal
+information. Do not load this plugin on a production server or expose an
+application with it enabled to the public Internet.
+</div>
+</section>
+
+<!-- Links -->
+<section>
+<h2>Links</h2>
+<p>
+<strong>Repository:</strong>
+<a href="https://github.com/bigpresh/Catalyst-Plugin-Profile-DBI-Log">
+  github.com/bigpresh/Catalyst-Plugin-Profile-DBI::Log</a>
+</p>
+<p>
+<strong>CPAN:</strong>
+<a href="https://metacpan.org/dist/Catalyst-Plugin-Profile-DBI-Log">
+  metacpan.org/dist/Catalyst-Plugin-Profile-DBI-Log</a>
+</p>
+<p>
+<strong>Related modules:</strong>
+<a href="https://metacpan.org/pod/DBI::Log">DBI::Log</a>,
+<a href="https://metacpan.org/pod/Catalyst">Catalyst</a>,
+<a href="https://metacpan.org/pod/DBIx::Class">DBIx::Class</a>,
+<a href="https://metacpan.org/pod/Catalyst::Plugin::DBIC::Profiler">Catalyst::Plugin::DBIC::Profiler</a>
+</p>
+</section>
+
+</div>
+
+<footer class="footer">
+&copy; 2026 David Precious &middot;
+Licensed under the
+<a href="https://dev.perl.org/licenses/">same terms as Perl itself</a>.
+</footer>
+
+</body>
+</html>

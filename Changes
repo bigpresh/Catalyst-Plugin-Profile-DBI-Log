@@ -1,6 +1,9 @@
 Revision history for Catalyst-Plugin-Profile-DBI-Log
 
 {{$NEXT}}
+- Added a project website with screenshots (hosted on GitHub Pages); link to
+  it from the module documentation and README, and point the dist metadata
+  (homepage, repository.url) at it
 
 0.03   2026-09-10
 - Styling to make generated pages much more appealing

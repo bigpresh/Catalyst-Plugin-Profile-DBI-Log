@@ -129,6 +129,9 @@ and you'll see a list of HTTP requests handled, along with info on how many
 queries they ran and how long they spent waiting for the DB, with a clickable
 link to view the actual queries and stack trace of where they came from.
 
+For screenshots of the profiler in action, see the project website:
+L<https://bigpresh.github.io/Catalyst-Plugin-Profile-DBI-Log>.
+
 =head1 DESCRIPTION
 
 I needed a way to quickly and easily see, for each API route invocation (HTTP
@@ -164,6 +167,22 @@ using L<DBIx::Class::Storage::Statistics> such as L<Catalyst::Plugin::DBIC::Prof
 but parts of one of our apps, for hairy legacy reasons also go direct to the
 DB with DBI, so we needed to catch those too - and wanted a useful way to
 see the list of profiled requests right in the browser.
+
+The source code is available on GitHub:
+L<https://github.com/bigpresh/Catalyst-Plugin-Profile-DBI-Log>.
+
+Screenshots and an overview may be found on the project website:
+L<https://bigpresh.github.io/Catalyst-Plugin-Profile-DBI-Log>.
+
+=over
+
+=item L<DBI::Log>
+
+=item L<Catalyst::Plugin::DBIC::Profiler>
+
+=item L<CatalystX::InjectComponent>
+
+=back
 
 
 =head1 SECURITY
